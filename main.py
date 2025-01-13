@@ -1,7 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.index import ChatMessage
-from providers.ollama import query_rag
+from providers.together import query_rag
 from dotenv import load_dotenv
 
 from fastapi import FastAPI

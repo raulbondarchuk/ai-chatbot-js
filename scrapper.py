@@ -39,6 +39,5 @@ def asyncLoader(links):
 
 
 if __name__ == "__main__":
-    # ls = ["https://geomotiv.com/industries/adtech/ad-server/"]
     ls = getLinks2Parse()
     asyncLoader(ls)

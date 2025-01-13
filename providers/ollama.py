@@ -4,6 +4,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
+from models.index import ChatMessage
 
 PINK = '\033[95m'
 CYAN = '\033[96m'
@@ -26,18 +27,6 @@ Answer the question based only on the following context:
 {context}
 Question: {question}
 [/INST]
-"""
-
-PROMPT_TEMPLATE2 = """
-As the Sales Manager of Geomotiv, your role is to engage potential and existing customers with in-depth knowledge of our products and services.
-Your goal is to identify customer needs, present tailored solutions, and build lasting relationships to drive sales.
-Use a professional, confident, and personable tone. Proactively address customer queries, showcase our unique selling points, and suggest upsell or cross-sell opportunities.
-Leverage any retrieved data about specific products, services, or customer history to create a personalized and compelling sales experience.
-Be attentive, persuasive, and focused on helping the customer make informed decisions.
-
-Answer the question based only on the following context:
-{context}
-Question: {question}
 """
 
 
@@ -112,10 +101,10 @@ def rewrite_query(user_question: str, history: list):
     return model.invoke(prompt_template.format(context=context, question=user_question))
 
 
-def query_rag(query_text: str, session_id: str = "") -> str:
+def query_rag(message: ChatMessage, session_id: str = "") -> str:
     """
     Query a Retrieval-Augmented Generation (RAG) system using Chroma database and OpenAI.
-    :param query_text: str The text to query the RAG system with.
+    :param message: ChatMessage The text to query the RAG system with.
     :param session_id: str Session identifier
     :return str
     """
@@ -124,11 +113,11 @@ def query_rag(query_text: str, session_id: str = "") -> str:
         chat_history[session_id] = []
 
     # Generate response text based on the prompt
-    response_text = document_chain.invoke({"context": db.similarity_search(query_text, k=3),
-                                           "question": query_text,
+    response_text = document_chain.invoke({"context": db.similarity_search(message.question, k=3),
+                                           "question": message.question,
                                            "chat_history": chat_history[session_id]})
 
-    chat_history[session_id].append(HumanMessage(content=query_text))
+    chat_history[session_id].append(HumanMessage(content=message.question))
     chat_history[session_id].append(AIMessage(content=response_text))
 
     return response_text

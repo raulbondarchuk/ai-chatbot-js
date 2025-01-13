@@ -122,4 +122,5 @@ def generate_data_store():
     save_to_chroma(chunks)  # Save the processed data to a data store
 
 
-generate_data_store()
+if __name__ == "__main__":
+    generate_data_store()
