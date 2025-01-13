@@ -111,6 +111,7 @@ The project supports multiple providers for processing AI queries:
 ### 6. Verify the Setup
 Open the browser and navigate to [http://127.0.0.1:8000/public/chat.html](http://127.0.0.1:8000/public/chat.html). Test the bot's functionality and start interacting with your assistant.
 As an alternative you can open [http://127.0.0.1:8000/public/iframe.html](http://127.0.0.1:8000/public/iframe.html) to see how it can be ingested on you custom page.
+
 ---
 
 ## Final
