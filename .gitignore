@@ -1,0 +1,9 @@
+.git
+bin
+include
+lib
+share
+.idea
+pyvenv.cfg
+db_metadata_v5
+.env
