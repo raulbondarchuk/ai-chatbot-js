@@ -2,12 +2,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from models.index import ChatMessage
 from providers.together import query_rag
-from dotenv import load_dotenv
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-load_dotenv()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -29,4 +27,4 @@ async def read_root():
 
 @app.post("/chat/{chat_id}")
 async def ask(chat_id: str, message: ChatMessage):
-    return {"response": query_rag(message, chat_id)}
+    return {"response": await query_rag(message, chat_id)}

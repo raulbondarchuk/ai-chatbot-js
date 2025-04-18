@@ -1,17 +1,13 @@
 # Langchain dependencies
 import hashlib
+import os
+import shutil
 
 from langchain_community.document_loaders import TextLoader
-# from langchain.text_splitter import RecursiveCharacterTextSplitter  # Importing text splitter from Langchain
-from langchain.text_splitter import MarkdownTextSplitter  # Importing text splitter from Langchain
-from langchain_community.embeddings import OpenAIEmbeddings  # Importing OpenAI embeddings from Langchain
-from langchain.schema import Document  # Importing Document schema from Langchain
-from langchain_community.vectorstores import Chroma  # Importing Chroma vector store from Langchain
+from langchain.text_splitter import MarkdownTextSplitter
+from langchain.schema import Document
+from langchain_community.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings
-# from dotenv import load_dotenv  # Importing dotenv to get API key from .env file
-# from langchain.chat_models import ChatOpenAI  # Import OpenAI LLM
-import os  # Importing os module for operating system functionalities
-import shutil  # Importing shutil module for high-level file operations
 
 
 # Path to the directory to save Chroma database
