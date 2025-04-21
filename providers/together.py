@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 from typing import List
 from dotenv import load_dotenv
@@ -14,7 +15,9 @@ from models.index import ChatMessage
 
 load_dotenv()
 
-CHROMA_PATH = "./db_metadata_v5"
+root = pathlib.Path(__file__).parent.parent.resolve()
+CHROMA_PATH = f"{root}/db_metadata_v7"
+
 PROMPT_TEMPLATE = """
 [INST]
 You are a sales manager.
@@ -41,12 +44,9 @@ Question: {question}
 # Initialize OpenAI chat model
 model = ChatTogether(model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free", together_api_key=os.getenv("AI_TOGETHER_API_KEY"), temperature=0.1)
 
-
-# YOU MUST - Use same embedding function as before
-embedding_function = OllamaEmbeddings(model="mxbai-embed-large")
-
 # Prepare the database
-db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+db = Chroma(persist_directory=CHROMA_PATH,
+            embedding_function=OllamaEmbeddings(model="mxbai-embed-large"))
 chat_history = {}  # approach with AiMessage/HumanMessage
 
 prompt_template = ChatPromptTemplate.from_messages(
@@ -130,9 +130,11 @@ async def query_rag(message: ChatMessage, session_id: str = ""):
         """)]
 
     found_context = db.similarity_search_with_relevance_scores(message.question, k=3)
+    print("ORIGINAL CONTEXT", found_context, "\r\n\r\n")
 
     rewritten_query = await rewrite_query(message.question, chat_history[session_id])
     additional_context = db.similarity_search_with_relevance_scores(rewritten_query.content, k=3)
+    print("ADDITIONAL CONTEXT", additional_context, "\r\n\r\n")
 
     messages = trim_messages(chat_history[session_id], strategy="last", token_counter=count_tokens_approximately,
                              max_tokens=2056, start_on="human", allow_partial=False)

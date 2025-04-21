@@ -1,51 +1,43 @@
-# Langchain dependencies
 import hashlib
 import os
 import shutil
+import pathlib
 
-from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import MarkdownTextSplitter
+from langchain.text_splitter import MarkdownHeaderTextSplitter
 from langchain.schema import Document
-from langchain_community.vectorstores import Chroma
+from langchain_chroma.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings
 
+from utils.index import load_documents
 
-# Path to the directory to save Chroma database
-CHROMA_PATH = "./db_metadata_v5"
+# Path to the directory to save a Chroma database
+root = pathlib.Path(__file__).parent.resolve()
+CHROMA_PATH = f"{root}/db_metadata_v7"
 DATA_PATH = "./docs"
 global_unique_hashes = set()
 
 
-def walk_through_files(path, file_extension='.txt'):
-    for (dir_path, dir_names, filenames) in os.walk(path):
-        for filename in filenames:
-            if filename.endswith(file_extension):
-                yield os.path.join(dir_path, filename)
-
-
-def load_documents():
-    """
-    Load documents from the specified directory
-    Returns:
-    List of Document objects:
-    """
-    documents = []
-    for f_name in walk_through_files(DATA_PATH):
-        document_loader = TextLoader(f_name, encoding="utf-8")
-        documents.extend(document_loader.load())
-
-    return documents
-
-
 def hash_text(text):
-    # Generate a hash value for the text using SHA-256
+    """
+    Generates a SHA-256 hash for the given input text.
+
+    This function takes a string input, encodes it to bytes, computes its SHA-256
+    hash using the hashlib library, and returns the resulting hash value in
+    hexadecimal format. It can be used for applications that require hashing
+    features like integrity validation, password storage, or data comparison.
+
+    :param text: The input string to be hashed.
+    :type text: str
+    :return: The hexadecimal representation of the computed SHA-256 hash.
+    :rtype: str
+    """
     hash_object = hashlib.sha256(text.encode())
     return hash_object.hexdigest()
 
 
 def split_text(documents: list[Document]):
     """
-    Split the text content of the given list of Document objects into smaller chunks.
+    Split the text content of the given list into smaller chunks.
     Args:
     documents (list[Document]): List of Document objects containing text content to split.
     Returns:
@@ -59,15 +51,27 @@ def split_text(documents: list[Document]):
         length_function=len,  # Function to compute the length of the text
         add_start_index=True,  # Flag to add start index to each chunk
     )
-    """
     text_splitter = MarkdownTextSplitter(
         chunk_size=500,  # Size of each chunk in characters
         chunk_overlap=100,  # Overlap between consecutive chunks
         length_function=len,  # Function to compute the length of the text
     )
 
+    """
+    headers = [("#", "Header 1"),
+               ("##", "Header 2"),
+               ("###", "Header 3")]
+    md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers, strip_headers=False)
+
+    chunks = []
+    for doc in documents:
+        parsed_chunks = md_splitter.split_text(doc.page_content)
+        for chunk in parsed_chunks:
+            chunk.metadata['source'] = doc.metadata['source']
+        chunks.extend(parsed_chunks)
+
     # Split documents into smaller chunks using text splitter
-    chunks = text_splitter.split_documents(documents)
+    # chunks = text_splitter.split_documents(documents)
     print(f"Split {len(documents)} documents into {len(chunks)} chunks.")
 
     # Deduplication mechanism
@@ -78,10 +82,7 @@ def split_text(documents: list[Document]):
             unique_chunks.append(chunk)
             global_unique_hashes.add(chunk_hash)
 
-    # Print example of page content and metadata for a chunk
     print(f"Unique chunks equals {len(unique_chunks)}.")
-    # print(unique_chunks[:-5])
-
     return unique_chunks  # Return the list of split text chunks
 
 
@@ -98,14 +99,12 @@ def save_to_chroma(chunks: list[Document]):
         shutil.rmtree(CHROMA_PATH)
 
     # Create a new Chroma database from the documents using OpenAI embeddings
-    db = Chroma.from_documents(
+    Chroma.from_documents(
         documents=chunks,
         embedding=OllamaEmbeddings(model="mxbai-embed-large"),
         persist_directory=CHROMA_PATH
     )
 
-    # Persist the database to disk
-    db.persist()
     print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
 
@@ -113,7 +112,7 @@ def generate_data_store():
     """
     Function to generate vector database in chroma from documents.
     """
-    documents = load_documents()  # Load documents from a source
+    documents = load_documents(DATA_PATH, '.md')  # Load documents from a source
     chunks = split_text(documents)  # Split documents into manageable chunks
     save_to_chroma(chunks)  # Save the processed data to a data store
 
