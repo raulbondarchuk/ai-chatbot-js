@@ -96,7 +96,7 @@ The project supports multiple providers for processing AI queries:
   - Obtain your API key.
   - Create a `.env` file with the following content:
     ```
-    AI_TOGETHER_API_KEY="<YOUR KEY>"
+    TOGETHER_API_KEY="<YOUR KEY>"
     ```
   - Update `main.py` to switch the provider:
     ```python

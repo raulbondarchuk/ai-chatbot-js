@@ -11,9 +11,9 @@ from langchain_ollama import OllamaEmbeddings
 from utils.index import load_documents
 
 # Path to the directory to save a Chroma database
-root = pathlib.Path(__file__).parent.resolve()
+root = pathlib.Path(__file__).parent.parent.resolve()
 CHROMA_PATH = f"{root}/db_metadata_v7"
-DATA_PATH = "./docs"
+DATA_PATH = f"{root}/docs"
 global_unique_hashes = set()
 
 

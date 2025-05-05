@@ -1,14 +1,21 @@
 import os
 
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader, Docx2txtLoader
 from langchain_core.documents.base import Document
 from typing import List
 
 
+def pretty_print_docs_with_score(docs):
+    print(
+        f"\n{'-' * 100}\n".join(
+            [f"Score: {d[1]}\n\n Document: {d[0].id}\n\n" + d[0].page_content for d in docs]
+        )
+    )
+
 def pretty_print_docs(docs):
     print(
         f"\n{'-' * 100}\n".join(
-            [f"Document {d.metadata.get('source')}:\n\n" + d.page_content for d in docs]
+            [f"Document: {d.metadata.get('source')}\n\n" + d.page_content for d in docs]
         )
     )
 
@@ -48,7 +55,10 @@ def load_documents(data_path: str, extension='.txt') -> List[Document]:
     """
     documents = []
     for f_name in walk_through_files(data_path, extension):
-        document_loader = TextLoader(f_name, encoding="utf-8")
+        if extension.endswith('docx'):
+            document_loader = Docx2txtLoader(f_name)
+        else:
+            document_loader = TextLoader(f_name, encoding="utf-8")
         documents.extend(document_loader.load())
 
     return documents

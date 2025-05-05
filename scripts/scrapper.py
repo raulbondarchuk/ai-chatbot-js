@@ -1,9 +1,13 @@
+import pathlib
+
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import Html2TextTransformer, BeautifulSoupTransformer
 
 
-FILE_TO_PARSE = "data/links.txt"
-DIR_TO_STORE = "docs"
+# Path to the directory to save a Chroma database
+root = pathlib.Path(__file__).parent.parent.resolve()
+FILE_TO_PARSE = f"{root}/data/links.txt"
+DIR_TO_STORE = f"{root}/docs"
 
 
 def getLinks2Parse() -> list:

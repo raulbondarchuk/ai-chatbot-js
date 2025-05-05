@@ -21,6 +21,7 @@ Author: [Andrei Dryzgalovich]
 """
 import asyncio
 import os
+import pathlib
 
 from dotenv import load_dotenv
 from utils.index import load_documents
@@ -31,7 +32,8 @@ from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
 
-DATA_PATH = "./tmp"
+root = pathlib.Path(__file__).parent.parent.resolve()
+DATA_PATH = f"{root}/tmp/source"
 
 
 SYSTEM_PROMPT = """
@@ -62,7 +64,7 @@ Return the transformed document in Markdown format, with no commentary.
 """
 
 # Initialize OpenAI chat model
-model = ChatTogether(model="meta-llama/Llama-3.3-70B-Instruct-Turbo", together_api_key=os.getenv("AI_TOGETHER_API_KEY"), temperature=0.1)
+model = ChatTogether(model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", temperature=0.1)
 # model = ChatTogether(model="deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free", together_api_key=os.getenv("AI_TOGETHER_API_KEY"), temperature=0.1)
 
 
@@ -71,13 +73,13 @@ async def document_transform():
     Load and transform documents
     :return:
     """
-    docs = load_documents(DATA_PATH)
+    docs = load_documents(DATA_PATH, extension='md')
 
     template = ChatPromptTemplate.from_template(template=SYSTEM_PROMPT)
 
     for doc in docs:
         folder, file_path = os.path.split(doc.metadata["source"])
-        updated_file_path = f"./docs/{file_path}.md".lower()
+        updated_file_path = f"{DATA_PATH}/{file_path}.md".lower()
 
         prompt = template.format_messages(markdown_document=doc.page_content)
 
@@ -90,10 +92,11 @@ async def document_transform():
             print(f"File {updated_file_path} added")
         except BaseException as ex:
             print(f"Cannot create a file {updated_file_path}: {str(ex)}")
+        """
         finally:
             # make a delay
             await asyncio.sleep(30)
-
+        """
 
 if __name__ == "__main__":
     asyncio.run(document_transform())
