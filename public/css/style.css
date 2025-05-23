@@ -28,6 +28,11 @@
     margin-left: 15px;
   }
 
+  #chat-popup ol {
+    list-style: decimal;
+    margin-left: 15px;
+  }
+
   @media (max-width: 768px) {
     #chat-popup {
       position: fixed;

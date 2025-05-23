@@ -42,8 +42,8 @@ Question: {question}
 """
 
 # Initialize OpenAI chat model
-# model = ChatTogether(model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", temperature=0.1)
-model = ChatTogether(model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free", temperature=0.1)
+model = ChatTogether(model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", temperature=0)
+free_model = ChatTogether(model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free", temperature=0.1)
 
 # Setup Compressor (free version)
 """
@@ -108,7 +108,7 @@ async def rewrite_query(user_question: str, history: List[BaseMessage]):
     template = ChatPromptTemplate.from_template(template=prompt)
     prompt = template.format_messages(context="\n".join(context), user_question=user_question)
 
-    return await model.ainvoke(prompt)
+    return await free_model.ainvoke(prompt)
 
 
 async def query_rag(message: ChatMessage, session_id: str = ""):

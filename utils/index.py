@@ -12,6 +12,7 @@ def pretty_print_docs_with_score(docs):
         )
     )
 
+
 def pretty_print_docs(docs):
     print(
         f"\n{'-' * 100}\n".join(

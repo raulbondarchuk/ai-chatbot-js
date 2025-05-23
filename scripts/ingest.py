@@ -8,12 +8,13 @@ from langchain.schema import Document
 from langchain_chroma.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings
 
-from utils.index import load_documents
+from utils.docstore import SQLiteDocStore
 
 # Path to the directory to save a Chroma database
 root = pathlib.Path(__file__).parent.parent.resolve()
 CHROMA_PATH = f"{root}/db_metadata_v7"
-DATA_PATH = f"{root}/docs"
+DB_PATH = f"{root}/data/docs.sqlite"
+
 global_unique_hashes = set()
 
 
@@ -112,9 +113,15 @@ def generate_data_store():
     """
     Function to generate vector database in chroma from documents.
     """
-    documents = load_documents(DATA_PATH, '.md')  # Load documents from a source
-    chunks = split_text(documents)  # Split documents into manageable chunks
-    save_to_chroma(chunks)  # Save the processed data to a data store
+    try:
+        db_conn = SQLiteDocStore(db_path=DB_PATH)
+        docs_list = db_conn.list()
+        chunks = split_text(docs_list)   # Split documents into manageable chunks
+        save_to_chroma(chunks)  # Save the processed data to a data store
+        db_conn.update_parsed_status([doc.metadata.get('id') for doc in docs_list])
+
+    except BaseException as ex:
+        print(str(ex))
 
 
 if __name__ == "__main__":
