@@ -3,5 +3,5 @@ name = "ai-chatbot-js"
 version = "1.1.0"
 description = "A RAG-based assistant for auction platform support"
 authors = [
-    { name = "Andrei Dryzgalovich", email = "andrei.d@geomotiv.com" }
+    { name = "Lifter AI", email = "soporteit@liftel.es" }
 ]

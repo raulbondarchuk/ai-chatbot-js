@@ -1,5 +1,7 @@
 # README.md
 
+# https://habr.com/ru/articles/873336/
+
 ## Overview
 
 This project implements a personal AI assistant leveraging a Retrieval-Augmented Generation (RAG) system with a UI developed in pure JavaScript. The assistant is designed to replicate all steps that a user might perform themselves, offering a robust guide for building a similar bot. The UI can be seamlessly injected into any website by referencing the JavaScript link, ensuring ease of integration.
